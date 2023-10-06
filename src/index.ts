@@ -1,8 +1,19 @@
-import { ArxMap, DONT_QUADIFY, Entity, HudElements, SHADING_SMOOTH, Settings, Vector3 } from 'arx-level-generator'
+import {
+  ArxMap,
+  Color,
+  DONT_QUADIFY,
+  Entity,
+  HudElements,
+  Rotation,
+  SHADING_SMOOTH,
+  Settings,
+  Vector3,
+} from 'arx-level-generator'
 import { Rune } from 'arx-level-generator/prefabs/entity'
+import { PlayerControls } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomSort } from 'arx-level-generator/utils/random'
-import { Box3 } from 'three'
+import { Box3, MathUtils } from 'three'
 import { getGeometryBoundingBox } from '@/functions.js'
 import { bridgeBetween } from '@/prefabs/bridgeBetween.js'
 import { createColumns } from '@/prefabs/createColumns.js'
@@ -10,7 +21,8 @@ import { createFallInducer } from '@/prefabs/createFallInducer.js'
 import { createSpawnZone } from '@/prefabs/createSpawnZone.js'
 import { createTerrain } from '@/prefabs/createTerrain.js'
 import { TerrainItem } from '@/types.js'
-import { createIslands } from './data/createIslands.js'
+import { islandWithTree, islands } from './data/islands.js'
+import { createTree } from './prefabs/createTree.js'
 
 const settings = new Settings()
 
@@ -18,6 +30,7 @@ const map = new ArxMap()
 map.config.offset = new Vector3(6000, 0, 6000)
 map.player.position.adjustToPlayerHeight()
 map.player.withScript()
+// map.player.script?.properties.push(new Speed(3))
 map.hud.hide(HudElements.Minimap)
 
 await map.i18n.addFromFile('./i18n.json', settings)
@@ -29,7 +42,6 @@ rootRune.script?.makeIntoRoot()
 
 const lootRootEntities = [rootRune] as Entity[]
 
-const islands = createIslands()
 islands[0].loot?.push(...lootRootEntities)
 
 const allLoot = randomSort([
@@ -57,6 +69,8 @@ const terrainItems: TerrainItem[] = [
   createTerrain(bridgeBetween(islands[2], islands[5])),
   createTerrain(bridgeBetween(islands[3], islands[7])),
   createTerrain(bridgeBetween(islands[4], islands[7])),
+
+  createTerrain(islandWithTree),
 ]
 
 const boundingBoxes = terrainItems.flatMap(({ meshes }) => meshes).map((mesh) => getGeometryBoundingBox(mesh.geometry))
@@ -91,6 +105,70 @@ terrainItems.forEach(({ lights, entities, zones }) => {
 })
 
 map.zones.push(createSpawnZone(new Vector3(0, 0, 0)))
+
+const tree = await createTree({
+  position: islandWithTree.position?.clone(),
+})
+tree.forEach((mesh) => {
+  applyTransformations(mesh)
+  mesh.translateX(map.config.offset.x)
+  mesh.translateY(map.config.offset.y)
+  mesh.translateZ(map.config.offset.z)
+  applyTransformations(mesh)
+  map.polygons.addThreeJsMesh(mesh, {
+    tryToQuadify: DONT_QUADIFY,
+    shading: SHADING_SMOOTH,
+  })
+})
+
+const spawnMarker = Entity.marker
+spawnMarker.withScript()
+spawnMarker.script?.on('init', () => {
+  return `
+    worldfade out 0 ${Color.black.toScriptColor()}
+    ${PlayerControls.off}
+    playerinterface -s hide
+    TIMERload -m 1 2500 worldfade in 1000
+    TIMERspeakdelay -m 1 100 speak -p [alia_nightmare2] ${PlayerControls.on} playerinterface show
+  `
+})
+map.entities.push(spawnMarker)
+
+const zohark = new Entity({
+  src: 'items/quest_item/zohark',
+})
+zohark.withScript()
+zohark.script
+  ?.on('equipin', () => {
+    return `
+      ${PlayerControls.off}
+      playerinterface -s hide
+      play activate_scroll
+      worldfade out 1000 ${Color.white.toScriptColor()}
+      speak -p [iserbius_akbaa_die] endgame
+    `
+  })
+  .on('inventoryuse', () => {
+    return `
+      equip player
+      refuse
+    `
+  })
+map.entities.push(zohark)
+
+const chest = new Entity({
+  src: 'fix_inter/chest_metal',
+  position: islandWithTree.position?.clone().add(new Vector3(70, 0, 70)),
+  orientation: new Rotation(0, MathUtils.degToRad(40), 0),
+})
+chest.withScript()
+chest.script?.on('init', () => {
+  return `
+    set §unlock 1
+    inventory addfromscene ${zohark.ref}
+  `
+})
+map.entities.push(chest)
 
 // ----------------------
 
