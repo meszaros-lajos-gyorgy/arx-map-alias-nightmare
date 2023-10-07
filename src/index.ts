@@ -10,7 +10,8 @@ import {
   Vector3,
 } from 'arx-level-generator'
 import { Rune } from 'arx-level-generator/prefabs/entity'
-import { PlayerControls } from 'arx-level-generator/scripting/properties'
+import { useDelay } from 'arx-level-generator/scripting/hooks'
+import { PlayerControls, PlayerInterface } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomSort } from 'arx-level-generator/utils/random'
 import { Box3, MathUtils } from 'three'
@@ -22,6 +23,7 @@ import { createSpawnZone } from '@/prefabs/createSpawnZone.js'
 import { createTerrain } from '@/prefabs/createTerrain.js'
 import { TerrainItem } from '@/types.js'
 import { islandWithTree, islands } from './data/islands.js'
+import { createGameStateManager } from './gameStateManager.js'
 import { createTree } from './prefabs/createTree.js'
 
 const settings = new Settings()
@@ -121,18 +123,8 @@ tree.forEach((mesh) => {
   })
 })
 
-const spawnMarker = Entity.marker
-spawnMarker.withScript()
-spawnMarker.script?.on('init', () => {
-  return `
-    worldfade out 0 ${Color.black.toScriptColor()}
-    ${PlayerControls.off}
-    playerinterface -s hide
-    TIMERload -m 1 2500 worldfade in 1000
-    TIMERspeakdelay -m 1 100 speak -p [alia_nightmare2] ${PlayerControls.on} playerinterface show
-  `
-})
-map.entities.push(spawnMarker)
+const gameStateManager = createGameStateManager(settings)
+map.entities.push(gameStateManager)
 
 const zohark = new Entity({
   src: 'items/quest_item/zohark',
@@ -142,7 +134,7 @@ zohark.script
   ?.on('equipin', () => {
     return `
       ${PlayerControls.off}
-      playerinterface -s hide
+      ${PlayerInterface.slideOut}
       play activate_scroll
       worldfade out 1000 ${Color.white.toScriptColor()}
       speak -p [iserbius_akbaa_die] endgame

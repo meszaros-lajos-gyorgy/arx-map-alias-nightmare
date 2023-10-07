@@ -29,7 +29,7 @@
   "homepage": "https://github.com/meszaros-lajos-gyorgy/arx-map-alias-nightmare#readme",
   "dependencies": {
     "arx-convert": "^7.1.0",
-    "arx-level-generator": "^4.0.0",
+    "arx-level-generator": "^4.1.0",
     "three": "^0.157.0"
   },
   "devDependencies": {
