@@ -14,5 +14,6 @@ export const thunderstorm = Audio.fromCustomFile({
 
 export const musicBySirs = Audio.fromCustomFile({
   filename: 'music_by_sirs.wav',
+  sourcePath: './sounds',
   type: 'sfx',
 })
