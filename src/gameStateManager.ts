@@ -11,9 +11,7 @@ export const createGameStateManager = (settings: Settings) => {
       'ready',
       () => {
         return `
-          ${PlayerControls.on}
-          ${PlayerInterface.on}
-          ${Cinemascope.off}
+          ${Cinemascope.off} ${PlayerInterface.on} ${PlayerControls.on}
         `
       },
       'goto',
@@ -29,8 +27,8 @@ export const createGameStateManager = (settings: Settings) => {
         ${Cinemascope.on}
         ${PlayerControls.off}
         ${PlayerInterface.slideOut}
-        ${delay(100)} worldfade in 1000
-        ${delay(0)} speak -p [alia_nightmare2] ${readyHandler.invoke()}
+        ${delay(100)} speak -p [alia_nightmare2] ${readyHandler.invoke()}
+        ${delay(2492)} worldfade in 700
       `
     })
   }
