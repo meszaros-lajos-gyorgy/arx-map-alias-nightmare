@@ -30,7 +30,7 @@ export const createColumns = (numberOfColumns: number, terrainBBox: Box3, boundi
       )
     } while (any((bbox) => bbox.intersectsBox(columnBBox), boundingBoxes))
 
-    let geometry = new CylinderGeometry(columnSize.x, columnSize.x, columnSize.y, 4, 4)
+    let geometry = new CylinderGeometry(columnSize.x, columnSize.x, columnSize.y, 3, 4)
     geometry = toArxCoordinateSystem(geometry)
 
     scaleUV(new Vector2(columnSize.x / 100, columnSize.y / 100), geometry)
