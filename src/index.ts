@@ -9,6 +9,7 @@ import {
   Vector3,
 } from 'arx-level-generator'
 import { Rune } from 'arx-level-generator/prefabs/entity'
+import { Speed } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomSort } from 'arx-level-generator/utils/random'
 import { Box3, MathUtils } from 'three'
@@ -29,7 +30,9 @@ const map = new ArxMap()
 map.config.offset = new Vector3(6000, 0, 6000)
 map.player.position.adjustToPlayerHeight()
 map.player.withScript()
-// map.player.script?.properties.push(new Speed(3))
+if (settings.mode === 'development') {
+  map.player.script?.properties.push(new Speed(3))
+}
 map.hud.hide(HudElements.Minimap)
 
 await map.i18n.addFromFile('./i18n.json', settings)
@@ -80,7 +83,9 @@ const terrainBBox = boundingBoxes.reduce((acc, curr) => {
   return acc
 }, new Box3())
 
-terrainItems.push(createColumns(200, terrainBBox, boundingBoxes))
+if (settings.mode === 'production') {
+  terrainItems.push(createColumns(500, terrainBBox, boundingBoxes))
+}
 terrainItems.push(createFallInducer(terrainBBox, islands[0].position ?? new Vector3(0, 0, 0)))
 
 terrainItems
