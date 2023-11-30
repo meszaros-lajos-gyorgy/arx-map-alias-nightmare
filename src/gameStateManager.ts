@@ -52,7 +52,7 @@ export const createGameStateManager = (settings: Settings) => {
         }
 
         if (§total_number_of_rings < 2) {
-          speak -p [liche_ouchS2]
+          speak -p [undead_ouch]
           return
         }
 
