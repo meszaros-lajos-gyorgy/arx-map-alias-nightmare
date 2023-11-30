@@ -18,6 +18,8 @@ export const createTerrain = ({
   texture = Texture.stoneHumanAkbaa2F,
   type,
   loot = [],
+  lightIntensity = 1,
+  lightOffset = new Vector3(0, 0, 0),
 }: createTerrainProps): TerrainItem => {
   const meshes: Mesh[] = []
   const lights: Light[] = []
@@ -98,9 +100,12 @@ export const createTerrain = ({
   if (hasLight) {
     const radius = Math.max(s.x, s.y) * 1.6
     const light = createLight({
-      position: position.clone().add(new Vector3(0, -radius / 2, 0)),
+      position: position
+        .clone()
+        .add(new Vector3(0, -radius / 2, 0))
+        .add(lightOffset),
       radius: radius,
-      intensity: 1,
+      intensity: lightIntensity,
       color: MAIN_COLOR.clone().lighten(30),
     })
     lights.push(light)
