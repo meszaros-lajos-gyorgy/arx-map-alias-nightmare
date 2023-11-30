@@ -27,6 +27,17 @@ export type createTerrainProps = {
    * default value is true
    */
   hasLight?: boolean
+  /**
+   * default value is 1
+   */
+  lightIntensity?: number
+  /**
+   * default value is new Vector3(0, 0, 0)
+   */
+  lightOffset?: Vector3
+  /**
+   * default value is Texture.stoneHumanAkbaa2F
+   */
   texture?: TextureOrMaterial
   type: 'island' | 'bridge'
   /**
