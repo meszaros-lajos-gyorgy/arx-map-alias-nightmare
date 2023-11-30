@@ -67,4 +67,6 @@ export const islandWithTree: createTerrainProps = {
   angleY: randomBetween(-20, 20),
   type: 'island',
   loot: [],
+  lightIntensity: 3,
+  lightOffset: new Vector3(60, 460, 80),
 }
