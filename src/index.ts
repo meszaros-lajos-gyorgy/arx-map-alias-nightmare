@@ -126,23 +126,31 @@ tree.forEach((mesh) => {
 const gameStateManager = createGameStateManager(settings)
 map.entities.push(gameStateManager)
 
-const zohark = new Entity({
-  src: 'items/quest_item/zohark',
-})
-zohark.withScript()
-zohark.script
+const krahoz = new Entity({ src: 'items/quest_item/krahoz' })
+krahoz.withScript()
+krahoz.script
   ?.on('equipin', () => {
-    return `
-      ${PlayerControls.off}
-      ${PlayerInterface.slideOut}
-      play activate_scroll
-      worldfade out 1000 ${Color.white.toScriptColor()}
-      speak -p [iserbius_akbaa_die] endgame
-    `
+    return `sendevent got_krahoz ${gameStateManager.ref} nop`
   })
   .on('inventoryuse', () => {
     return `
       equip player
+      play activate_scroll
+      refuse
+    `
+  })
+map.entities.push(krahoz)
+
+const zohark = new Entity({ src: 'items/quest_item/zohark' })
+zohark.withScript()
+zohark.script
+  ?.on('equipin', () => {
+    return `sendevent got_zohark ${gameStateManager.ref} nop`
+  })
+  .on('inventoryuse', () => {
+    return `
+      equip player
+      play activate_scroll
       refuse
     `
   })
@@ -157,6 +165,7 @@ chest.withScript()
 chest.script?.on('init', () => {
   return `
     set §unlock 1
+    inventory addfromscene ${krahoz.ref}
     inventory addfromscene ${zohark.ref}
   `
 })
