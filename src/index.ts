@@ -1,6 +1,5 @@
 import {
   ArxMap,
-  Color,
   DONT_QUADIFY,
   Entity,
   HudElements,
@@ -10,8 +9,6 @@ import {
   Vector3,
 } from 'arx-level-generator'
 import { Rune } from 'arx-level-generator/prefabs/entity'
-import { useDelay } from 'arx-level-generator/scripting/hooks'
-import { PlayerControls, PlayerInterface } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomSort } from 'arx-level-generator/utils/random'
 import { Box3, MathUtils } from 'three'
