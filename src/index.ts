@@ -128,32 +128,26 @@ map.entities.push(gameStateManager)
 
 const krahoz = new Entity({ src: 'items/quest_item/krahoz' })
 krahoz.withScript()
-krahoz.script
-  ?.on('equipin', () => {
-    return `sendevent got_krahoz ${gameStateManager.ref} nop`
-  })
-  .on('inventoryuse', () => {
-    return `
-      equip player
-      play activate_scroll
-      refuse
-    `
-  })
+krahoz.script?.on('inventoryuse', () => {
+  return `
+    play activate_scroll
+    sendevent got_krahoz ${gameStateManager.ref} nop
+    destroy self
+    refuse
+  `
+})
 map.entities.push(krahoz)
 
 const zohark = new Entity({ src: 'items/quest_item/zohark' })
 zohark.withScript()
-zohark.script
-  ?.on('equipin', () => {
-    return `sendevent got_zohark ${gameStateManager.ref} nop`
-  })
-  .on('inventoryuse', () => {
-    return `
-      equip player
-      play activate_scroll
-      refuse
-    `
-  })
+zohark.script?.on('inventoryuse', () => {
+  return `
+    play activate_scroll
+    sendevent got_zohark ${gameStateManager.ref} nop
+    destroy self
+    refuse
+  `
+})
 map.entities.push(zohark)
 
 const chest = new Entity({

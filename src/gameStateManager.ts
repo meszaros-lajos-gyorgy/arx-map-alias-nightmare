@@ -41,6 +41,8 @@ export const createGameStateManager = (settings: Settings) => {
   const checkForBothRings = new ScriptSubroutine(
     'check_for_both_rings',
     () => {
+      const { delay } = useDelay()
+
       return `
         set §total_number_of_rings 0
 
@@ -53,6 +55,8 @@ export const createGameStateManager = (settings: Settings) => {
 
         if (§total_number_of_rings < 2) {
           speak -p [undead_ouch]
+          worldfade out 50 ${Color.white.toScriptColor()}
+          ${delay(50)} worldfade in 500
           return
         }
 
