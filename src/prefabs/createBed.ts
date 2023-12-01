@@ -1,27 +1,29 @@
 import { ArxMap, Settings, Texture, Vector3 } from 'arx-level-generator'
 import { Box3 } from 'three'
 
-// TODO: rewrite this to get the bed from Alia's quarters from level 16
 export const createBed = async ({ position, scale = 1 }: { position: Vector3; scale?: number }, settings: Settings) => {
-  const castleMap = await ArxMap.fromOriginalLevel(0, settings)
+  const rebelCampMap = await ArxMap.fromOriginalLevel(16, settings)
 
-  const barrelTexture = new Texture({
-    filename: 'fixinter_barrel.jpg',
-    size: 128, // it's actally 128×256
+  const rebelFabric3 = new Texture({
+    filename: 'l3_dissid_[wood]_fabric03.jpg',
   })
 
-  const center = new Vector3(4703, 1775, 8654)
+  const rebelFabric4 = new Texture({
+    filename: 'l3_dissid_[wood]_fabric04.jpg',
+  })
+
+  const center = new Vector3(8854, 650, 5655)
   const box = new Box3(
-    center.clone().add(new Vector3(-200, -200, -200)),
-    center.clone().add(new Vector3(200, 200, 200)),
+    center.clone().add(new Vector3(-200, -100, -200)),
+    center.clone().add(new Vector3(200, 100, 200)),
   )
 
-  const adjustment = new Vector3(0, 50, 0)
+  const adjustment = new Vector3(0, 40, 0)
   const inverseCenter = center.clone().multiplyScalar(-1)
 
-  return castleMap.polygons
+  return rebelCampMap.polygons
     .selectWithinBox(box)
-    .selectByTextures([barrelTexture])
+    .selectByTextures([rebelFabric3, rebelFabric4])
     .copy()
     .moveToRoom1()
     .move(inverseCenter)
