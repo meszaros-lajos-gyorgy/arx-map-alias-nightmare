@@ -1,6 +1,7 @@
+import { DoubleOf } from 'arx-convert/utils'
 import { Texture, Vector3 } from 'arx-level-generator'
 import { scaleUV, toArxCoordinateSystem } from 'arx-level-generator/tools/mesh'
-import { any } from 'arx-level-generator/utils/faux-ramda'
+import { none } from 'arx-level-generator/utils/faux-ramda'
 import { randomBetween } from 'arx-level-generator/utils/random'
 import { quadtree as d3Quadtree } from 'd3-quadtree'
 import { Box2, Box3, CylinderGeometry, Mesh, MeshBasicMaterial, Vector2 } from 'three'
@@ -12,6 +13,16 @@ const randomPointInArea = (area: Box2) => {
   return new Vector2(x, y)
 }
 
+const tupleToVector2 = ([x, y]: DoubleOf<number>) => {
+  return new Vector2(x, y)
+}
+
+const vector2ToTuple = (p: Vector2) => {
+  return [p.x, p.y] as DoubleOf<number>
+}
+
+const nullVector = new Vector2(0, 0)
+
 /**
  * Poisson-disc distribution using Mitchell’s best-candidate
  *
@@ -19,105 +30,87 @@ const randomPointInArea = (area: Box2) => {
  * @see https://bost.ocks.org/mike/algorithms/
  * @see https://gist.github.com/mbostock/981b42034400e48ac637
  */
-const createBestCandidateSampler = (area: Box2, numCandidates: number, numSamplesMax: number) => {
-  const quadtree = d3Quadtree().extent([
-    [area.min.x, area.min.y],
-    [area.max.x, area.max.y],
-  ])
+const fillArea = (area: Box2, numberOfCandidates: number, numberOfSamples: number) => {
+  const quadtree = d3Quadtree().extent([vector2ToTuple(area.min), vector2ToTuple(area.max)])
 
-  const p = randomPointInArea(area)
-  quadtree.add([p.x, p.y])
+  quadtree.add(vector2ToTuple(randomPointInArea(area)))
 
-  let numSamples = 0
+  const points: Vector2[] = []
 
-  return () => {
-    numSamples++
-
-    if (numSamples > numSamplesMax) {
-      return null
-    }
-
-    let bestCandidate: Vector2 | null = null
+  for (let i = 0; i < numberOfSamples; i++) {
+    let bestCandidate = nullVector
     let bestDistance = 0
 
-    for (var i = 0; i < numCandidates; i++) {
-      const c = randomPointInArea(area)
-      const [x, y] = quadtree.find(c.x, c.y) as [number, number]
-      const closest = new Vector2(x, y)
+    for (let j = 0; j < numberOfCandidates; j++) {
+      const candidate = randomPointInArea(area)
+      const closestPoint = tupleToVector2(quadtree.find(candidate.x, candidate.y) as DoubleOf<number>)
+      const distance = closestPoint.distanceToSquared(candidate)
 
-      const d = closest.distanceToSquared(c)
-
-      if (d > bestDistance) {
-        bestDistance = d
-        bestCandidate = c
+      if (distance > bestDistance) {
+        bestDistance = distance
+        bestCandidate = candidate
       }
     }
 
-    if (bestCandidate === null) {
-      return null
-    }
+    quadtree.add(vector2ToTuple(bestCandidate))
 
-    quadtree.add([bestCandidate.x, bestCandidate.y])
-
-    return bestCandidate
+    points.push(bestCandidate)
   }
+
+  return points
 }
 
 const createPillar = (pos: Vector3, pillarSize: Vector2) => {
   let geometry = new CylinderGeometry(pillarSize.x, pillarSize.x, pillarSize.y, 3, 4)
   geometry = toArxCoordinateSystem(geometry)
+  geometry.translate(pos.x, pos.y, pos.z)
 
   scaleUV(new Vector2(pillarSize.x / 100, pillarSize.y / 100), geometry)
 
   const material = new MeshBasicMaterial({ map: Texture.stoneHumanAkbaa4F })
-  const pillar = new Mesh(geometry, material)
 
-  pillar.geometry.translate(pos.x, pos.y, pos.z)
-
-  return pillar
+  return new Mesh(geometry, material)
 }
 
-export const createPillars = (numberOfPillars: number, terrainBBox: Box3, boundingBoxes: Box3[]): TerrainItem => {
-  const terrainSize = Vector3.fromThreeJsVector3(terrainBBox.max.clone().sub(terrainBBox.min))
-  const terrainCenter = Vector3.fromThreeJsVector3(terrainBBox.min.clone().add(terrainSize.clone().divideScalar(2)))
+const getPillarBBox = (pos: Vector3, pillarSize: Vector2) => {
+  const pillarBBoxMin = new Vector3(pillarSize.x / 2, pillarSize.y / 2, pillarSize.x / 2)
+  const pillarBBoxMax = new Vector3(pillarSize.x / 2, pillarSize.y / 2, pillarSize.x / 2)
+
+  return new Box3(pos.clone().sub(pillarBBoxMin), pos.clone().add(pillarBBoxMax))
+}
+
+/**
+ * Fills up a given area with pillars
+ *
+ * An extra margin of 1500 units around the outskirts of the map will be added in all 4 directions
+ *
+ * @param numberOfPillars how many pillars to be added
+ * @param area the area containing all islands and bridges
+ * @param excludedZones a list of individual areas around each island and bridge
+ */
+export const createPillars = (numberOfPillars: number, area: Box3, excludedZones: Box3[]): TerrainItem => {
+  const areaSize = area.max.clone().sub(area.min)
+  const areaCenter = area.min.clone().add(areaSize.clone().divideScalar(2))
   const margin = 1500
 
-  const pillars: Mesh[] = []
-
-  const area = new Box2(
-    new Vector2(terrainBBox.min.x - margin, terrainBBox.min.z - margin),
-    new Vector2(terrainBBox.max.x + margin, terrainBBox.max.z + margin),
+  const area2DWithMargin = new Box2(
+    new Vector2(area.min.x - margin, area.min.z - margin),
+    new Vector2(area.max.x + margin, area.max.z + margin),
   )
-  const getSample = createBestCandidateSampler(area, 10, numberOfPillars)
-
-  const samples: Vector2[] = []
-
-  let sample = getSample()
-  while (sample !== null) {
-    samples.push(sample)
-    sample = getSample()
-  }
 
   const pillarSize = new Vector2(5, 5000)
+  const points = fillArea(area2DWithMargin, 10, numberOfPillars)
 
-  let pos: Vector3
-  let pillarBBox: Box3
+  const pillars = points.reduce((pillars, point) => {
+    const pos = new Vector3(point.x, areaCenter.y, point.y)
+    const pillarBBox = getPillarBBox(pos, pillarSize)
 
-  samples.forEach((s) => {
-    pos = new Vector3(s.x, terrainCenter.y, s.y)
-
-    pillarBBox = new Box3(
-      new Vector3(pos.x - pillarSize.x / 2, pos.y - pillarSize.y / 2, pos.z - pillarSize.x / 2),
-      new Vector3(pos.x + pillarSize.x / 2, pos.y + pillarSize.y / 2, pos.z + pillarSize.x / 2),
-    )
-
-    if (any((bbox) => bbox.intersectsBox(pillarBBox), boundingBoxes)) {
-      return
+    if (none((bbox) => bbox.intersectsBox(pillarBBox), excludedZones)) {
+      pillars.push(createPillar(pos, pillarSize))
     }
 
-    const pillar = createPillar(pos, pillarSize)
-    pillars.push(pillar)
-  })
+    return pillars
+  }, [] as Mesh[])
 
   return {
     meshes: pillars,
