@@ -13,8 +13,10 @@ const randomPointInArea = (area: Box2) => {
 }
 
 /**
- * Mitchell’s Best-Candidate
+ * Poisson-disc distribution using Mitchell’s best-candidate
  *
+ * @see https://stackoverflow.com/a/24947180/1806628
+ * @see https://bost.ocks.org/mike/algorithms/
  * @see https://gist.github.com/mbostock/981b42034400e48ac637
  */
 const createBestCandidateSampler = (area: Box2, numCandidates: number, numSamplesMax: number) => {
