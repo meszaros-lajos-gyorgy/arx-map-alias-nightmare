@@ -6,14 +6,7 @@ import { quadtree as d3Quadtree } from 'd3-quadtree'
 import { Box2, Box3, CylinderGeometry, Mesh, MeshBasicMaterial, Vector2 } from 'three'
 import { TerrainItem } from '@/types.js'
 
-const distance = (a: [number, number], b: Vector2) => {
-  let dx = a[0] - b.x
-  let dy = a[1] - b.y
-
-  return dx ** 2 + dy ** 2
-}
-
-const randomPoint = (area: Box2) => {
+const randomPointInArea = (area: Box2) => {
   const x = randomBetween(area.min.x, area.max.x)
   const y = randomBetween(area.min.y, area.max.y)
   return new Vector2(x, y)
@@ -30,7 +23,7 @@ const createBestCandidateSampler = (area: Box2, numCandidates: number, numSample
     [area.max.x, area.max.y],
   ])
 
-  const p = randomPoint(area)
+  const p = randomPointInArea(area)
   quadtree.add([p.x, p.y])
 
   let numSamples = 0
@@ -46,8 +39,11 @@ const createBestCandidateSampler = (area: Box2, numCandidates: number, numSample
     let bestDistance = 0
 
     for (var i = 0; i < numCandidates; i++) {
-      const c = randomPoint(area)
-      const d = distance(quadtree.find(c.x, c.y) as [number, number], c)
+      const c = randomPointInArea(area)
+      const [x, y] = quadtree.find(c.x, c.y) as [number, number]
+      const closest = new Vector2(x, y)
+
+      const d = closest.distanceToSquared(c)
 
       if (d > bestDistance) {
         bestDistance = d

@@ -83,9 +83,9 @@ const terrainBBox = boundingBoxes.reduce((acc, curr) => {
   return acc
 }, new Box3())
 
-if (settings.mode === 'production') {
-  terrainItems.push(createColumns(500, terrainBBox, boundingBoxes))
-}
+// if (settings.mode === 'production') {
+terrainItems.push(createColumns(500, terrainBBox, boundingBoxes))
+// }
 terrainItems.push(createFallInducer(terrainBBox, islands[0].position ?? new Vector3(0, 0, 0)))
 
 terrainItems
