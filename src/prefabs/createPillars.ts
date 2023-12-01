@@ -61,32 +61,32 @@ const createBestCandidateSampler = (area: Box2, numCandidates: number, numSample
   }
 }
 
-const createColumn = (pos: Vector3, columnSize: Vector2) => {
-  let geometry = new CylinderGeometry(columnSize.x, columnSize.x, columnSize.y, 3, 4)
+const createPillar = (pos: Vector3, pillarSize: Vector2) => {
+  let geometry = new CylinderGeometry(pillarSize.x, pillarSize.x, pillarSize.y, 3, 4)
   geometry = toArxCoordinateSystem(geometry)
 
-  scaleUV(new Vector2(columnSize.x / 100, columnSize.y / 100), geometry)
+  scaleUV(new Vector2(pillarSize.x / 100, pillarSize.y / 100), geometry)
 
   const material = new MeshBasicMaterial({ map: Texture.stoneHumanAkbaa4F })
-  const column = new Mesh(geometry, material)
+  const pillar = new Mesh(geometry, material)
 
-  column.geometry.translate(pos.x, pos.y, pos.z)
+  pillar.geometry.translate(pos.x, pos.y, pos.z)
 
-  return column
+  return pillar
 }
 
-export const createPillars = (numberOfColumns: number, terrainBBox: Box3, boundingBoxes: Box3[]): TerrainItem => {
+export const createPillars = (numberOfPillars: number, terrainBBox: Box3, boundingBoxes: Box3[]): TerrainItem => {
   const terrainSize = Vector3.fromThreeJsVector3(terrainBBox.max.clone().sub(terrainBBox.min))
   const terrainCenter = Vector3.fromThreeJsVector3(terrainBBox.min.clone().add(terrainSize.clone().divideScalar(2)))
   const margin = 1500
 
-  const columns: Mesh[] = []
+  const pillars: Mesh[] = []
 
   const area = new Box2(
     new Vector2(terrainBBox.min.x - margin, terrainBBox.min.z - margin),
     new Vector2(terrainBBox.max.x + margin, terrainBBox.max.z + margin),
   )
-  const getSample = createBestCandidateSampler(area, 10, numberOfColumns)
+  const getSample = createBestCandidateSampler(area, 10, numberOfPillars)
 
   const samples: Vector2[] = []
 
@@ -96,29 +96,29 @@ export const createPillars = (numberOfColumns: number, terrainBBox: Box3, boundi
     sample = getSample()
   }
 
-  const columnSize = new Vector2(5, 5000)
+  const pillarSize = new Vector2(5, 5000)
 
   let pos: Vector3
-  let columnBBox: Box3
+  let pillarBBox: Box3
 
   samples.forEach((s) => {
     pos = new Vector3(s.x, terrainCenter.y, s.y)
 
-    columnBBox = new Box3(
-      new Vector3(pos.x - columnSize.x / 2, pos.y - columnSize.y / 2, pos.z - columnSize.x / 2),
-      new Vector3(pos.x + columnSize.x / 2, pos.y + columnSize.y / 2, pos.z + columnSize.x / 2),
+    pillarBBox = new Box3(
+      new Vector3(pos.x - pillarSize.x / 2, pos.y - pillarSize.y / 2, pos.z - pillarSize.x / 2),
+      new Vector3(pos.x + pillarSize.x / 2, pos.y + pillarSize.y / 2, pos.z + pillarSize.x / 2),
     )
 
-    if (any((bbox) => bbox.intersectsBox(columnBBox), boundingBoxes)) {
+    if (any((bbox) => bbox.intersectsBox(pillarBBox), boundingBoxes)) {
       return
     }
 
-    const column = createColumn(pos, columnSize)
-    columns.push(column)
+    const pillar = createPillar(pos, pillarSize)
+    pillars.push(pillar)
   })
 
   return {
-    meshes: columns,
+    meshes: pillars,
     entities: [],
     lights: [],
     zones: [],
