@@ -75,7 +75,7 @@ const createColumn = (pos: Vector3, columnSize: Vector2) => {
   return column
 }
 
-export const createColumns = (numberOfColumns: number, terrainBBox: Box3, boundingBoxes: Box3[]): TerrainItem => {
+export const createPillars = (numberOfColumns: number, terrainBBox: Box3, boundingBoxes: Box3[]): TerrainItem => {
   const terrainSize = Vector3.fromThreeJsVector3(terrainBBox.max.clone().sub(terrainBBox.min))
   const terrainCenter = Vector3.fromThreeJsVector3(terrainBBox.min.clone().add(terrainSize.clone().divideScalar(2)))
   const margin = 1500

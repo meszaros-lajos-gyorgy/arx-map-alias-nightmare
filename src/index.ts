@@ -15,8 +15,8 @@ import { randomSort } from 'arx-level-generator/utils/random'
 import { Box3, MathUtils } from 'three'
 import { getGeometryBoundingBox } from '@/functions.js'
 import { bridgeBetween } from '@/prefabs/bridgeBetween.js'
-import { createColumns } from '@/prefabs/createColumns.js'
 import { createFallInducer } from '@/prefabs/createFallInducer.js'
+import { createPillars } from '@/prefabs/createPillars.js'
 import { createSpawnZone } from '@/prefabs/createSpawnZone.js'
 import { createTerrain } from '@/prefabs/createTerrain.js'
 import { TerrainItem } from '@/types.js'
@@ -84,7 +84,7 @@ const terrainBBox = boundingBoxes.reduce((acc, curr) => {
 }, new Box3())
 
 // if (settings.mode === 'production') {
-terrainItems.push(createColumns(500, terrainBBox, boundingBoxes))
+terrainItems.push(createPillars(500, terrainBBox, boundingBoxes))
 // }
 terrainItems.push(createFallInducer(terrainBBox, islands[0].position ?? new Vector3(0, 0, 0)))
 
