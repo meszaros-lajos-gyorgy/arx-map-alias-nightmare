@@ -1,6 +1,6 @@
 import { Expand } from 'arx-convert/utils'
 import { Entity, EntityConstructorPropsWithoutSrc, EntityModel } from 'arx-level-generator'
-import { Collision, Interactivity, Material, Scale, Shadow, StackSize } from 'arx-level-generator/scripting/properties'
+import { Collision, Interactivity, Material, Scale, Shadow } from 'arx-level-generator/scripting/properties'
 import { createTree } from '@/prefabs/createTree.js'
 
 type TreeConstructorProps = Expand<
