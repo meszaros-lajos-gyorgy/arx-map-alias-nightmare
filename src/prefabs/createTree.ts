@@ -1,7 +1,7 @@
 import { Rotation, Texture, Vector3 } from 'arx-level-generator'
 import { loadOBJ } from 'arx-level-generator/tools/mesh'
 
-type createMoonProps = {
+type createTreeProps = {
   /**
    * default value is undefined
    */
@@ -16,7 +16,7 @@ type createMoonProps = {
   orientation?: Rotation
 }
 
-export const createTree = async (props: createMoonProps = {}) => {
+export const createTree = async (props: createTreeProps = {}) => {
   return loadOBJ('models/tree/tree', {
     fallbackTexture: Texture.l2TrollWoodPillar08,
     ...props,

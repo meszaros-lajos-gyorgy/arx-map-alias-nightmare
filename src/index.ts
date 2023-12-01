@@ -11,8 +11,8 @@ import {
 import { Rune } from 'arx-level-generator/prefabs/entity'
 import { Speed } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
-import { randomSort } from 'arx-level-generator/utils/random'
-import { Box3, MathUtils } from 'three'
+import { pickRandom, randomBetween, randomSort } from 'arx-level-generator/utils/random'
+import { Box3, MathUtils, Mesh, Vector2 } from 'three'
 import { getGeometryBoundingBox } from '@/functions.js'
 import { bridgeBetween } from '@/prefabs/bridgeBetween.js'
 import { createFallInducer } from '@/prefabs/createFallInducer.js'
@@ -21,6 +21,7 @@ import { createSpawnZone } from '@/prefabs/createSpawnZone.js'
 import { createTerrain } from '@/prefabs/createTerrain.js'
 import { TerrainItem } from '@/types.js'
 import { islandWithTree, islands } from './data/islands.js'
+import { Tree } from './entities/tree.js'
 import { createGameStateManager } from './gameStateManager.js'
 import { createTree } from './prefabs/createTree.js'
 
@@ -83,9 +84,9 @@ const terrainBBox = boundingBoxes.reduce((acc, curr) => {
   return acc
 }, new Box3())
 
-// if (settings.mode === 'production') {
-terrainItems.push(createPillars(500, terrainBBox, boundingBoxes))
-// }
+if (settings.mode === 'production') {
+  terrainItems.push(createPillars(500, terrainBBox, boundingBoxes))
+}
 terrainItems.push(createFallInducer(terrainBBox, islands[0].position ?? new Vector3(0, 0, 0)))
 
 terrainItems
@@ -110,10 +111,12 @@ terrainItems.forEach(({ lights, entities, zones }) => {
 
 map.zones.push(createSpawnZone(new Vector3(0, 0, 0)))
 
-const tree = await createTree({
-  position: islandWithTree.position?.clone(),
-})
-tree.forEach((mesh) => {
+const meshes: Mesh[] = []
+
+const tree = await createTree({ position: islandWithTree.position?.clone() })
+meshes.push(...tree)
+
+meshes.forEach((mesh) => {
   applyTransformations(mesh)
   mesh.translateX(map.config.offset.x)
   mesh.translateY(map.config.offset.y)
@@ -123,6 +126,24 @@ tree.forEach((mesh) => {
     tryToQuadify: DONT_QUADIFY,
     shading: SHADING_SMOOTH,
   })
+})
+
+const getSize = (size: number | Vector2) => {
+  return typeof size === 'number' ? size : Math.min(size.x, size.y)
+}
+
+const rootTree = new Tree()
+rootTree.script?.makeIntoRoot()
+map.entities.push(rootTree)
+
+islands.forEach(({ size, position }) => {
+  const scale = getSize(size) / getSize(islandWithTree.size)
+  const upsideDownTree = new Tree({
+    position: position?.clone().add(new Vector3(0, 255 * scale, 0)),
+    orientation: new Rotation(MathUtils.degToRad(180), MathUtils.degToRad(randomBetween(0, 360)), 0),
+    scale,
+  })
+  map.entities.push(upsideDownTree)
 })
 
 const gameStateManager = createGameStateManager(settings)
