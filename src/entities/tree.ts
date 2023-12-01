@@ -29,10 +29,18 @@ export class Tree extends Entity {
 
     this.script?.on('init', () => {
       if (!this.script?.isRoot) {
-        return `${new Scale(scale)}`
+        return `
+          ${new Scale(scale)}
+        `
       }
 
-      return [Shadow.off, Material.wood, Interactivity.off, Collision.off]
+      return ''
     })
+
+    this.script
+      ?.whenRoot()
+      .on('init', () => [Shadow.off, Material.wood, Interactivity.off, Collision.off, 'setgroup tree'])
+      .on('show', () => `objecthide self no`)
+      .on('hide', () => `objecthide self yes`)
   }
 }

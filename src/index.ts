@@ -11,7 +11,7 @@ import {
 import { Rune } from 'arx-level-generator/prefabs/entity'
 import { Speed } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
-import { pickRandom, randomBetween, randomSort } from 'arx-level-generator/utils/random'
+import { randomBetween, randomSort } from 'arx-level-generator/utils/random'
 import { Box3, MathUtils, Mesh, Vector2 } from 'three'
 import { getGeometryBoundingBox } from '@/functions.js'
 import { bridgeBetween } from '@/prefabs/bridgeBetween.js'
@@ -84,9 +84,7 @@ const terrainBBox = boundingBoxes.reduce((acc, curr) => {
   return acc
 }, new Box3())
 
-if (settings.mode === 'production') {
-  terrainItems.push(createPillars(500, terrainBBox, boundingBoxes))
-}
+terrainItems.push(createPillars(500, terrainBBox, boundingBoxes))
 terrainItems.push(createFallInducer(terrainBBox, islands[0].position ?? new Vector3(0, 0, 0)))
 
 terrainItems
@@ -109,7 +107,7 @@ terrainItems.forEach(({ lights, entities, zones }) => {
   map.zones.push(...zones)
 })
 
-map.zones.push(createSpawnZone(new Vector3(0, 0, 0)))
+map.zones.push(createSpawnZone())
 
 const meshes: Mesh[] = []
 

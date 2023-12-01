@@ -1,5 +1,6 @@
 import { Color, Entity, Settings } from 'arx-level-generator'
 import { ScriptSubroutine } from 'arx-level-generator/scripting'
+import { Sound, SoundFlags } from 'arx-level-generator/scripting/classes'
 import { useDelay } from 'arx-level-generator/scripting/hooks'
 import { Cinemascope, PlayerControls, PlayerInterface, Variable } from 'arx-level-generator/scripting/properties'
 
@@ -33,10 +34,17 @@ export const createGameStateManager = (settings: Settings) => {
     })
   }
 
+  manager.script?.on('init', () => {
+    return `sendevent -g tree hide nop`
+  })
+
   const gotZohark = new Variable('bool', 'got_zohark', false)
   const gotKrahoz = new Variable('bool', 'got_krahoz', false)
 
   manager.script?.properties.push(gotZohark, gotKrahoz)
+
+  const screamingSound = new Sound('dragon_hit', SoundFlags.EmitFromPlayer | SoundFlags.VaryPitch)
+  const loudBangSound = new Sound('dwarf_crusher', SoundFlags.EmitFromPlayer | SoundFlags.VaryPitch)
 
   const checkForBothRings = new ScriptSubroutine(
     'check_for_both_rings',
@@ -54,9 +62,11 @@ export const createGameStateManager = (settings: Settings) => {
         }
 
         if (§total_number_of_rings < 2) {
-          speak -p [undead_ouch]
+          ${screamingSound.play()}
+          ${loudBangSound.play()}
+          quake 200 4000 1
           worldfade out 50 ${Color.white.toScriptColor()}
-          ${delay(50)} worldfade in 500
+          ${delay(50)} sendevent -g tree show nop worldfade in 500
           return
         }
 
