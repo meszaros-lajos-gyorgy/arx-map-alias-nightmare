@@ -36,6 +36,10 @@ if (settings.mode === 'development') {
   map.player.script?.properties.push(new Speed(3))
 }
 map.hud.hide(HudElements.Minimap)
+map.hud.hide(HudElements.Healthbar)
+map.hud.hide(HudElements.LevelUpIcon)
+map.hud.hide(HudElements.StealthIndicator)
+map.hud.hide(HudElements.StealingIcon)
 
 await map.i18n.addFromFile('./i18n.json', settings)
 
@@ -207,7 +211,7 @@ pillow.script?.properties.push(Shadow.off)
 
 const dresserLeft = new Entity({
   src: 'fix_inter/chest_dresser_chest',
-  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(200, 5, -200)),
+  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(200, 10, -200)),
   orientation: new Rotation(0, MathUtils.degToRad(90), MathUtils.degToRad(10)),
   id: 100,
 })
@@ -224,7 +228,7 @@ dresserRight.script?.properties.push(Shadow.off)
 
 const candleOnLeftDrawer = new Entity({
   src: 'items/provisions/candle/candel.asl',
-  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(220, -80, -180)),
+  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(220, -75, -180)),
   orientation: new Rotation(MathUtils.degToRad(-90), 0, 0),
 })
 candleOnLeftDrawer.withScript()
