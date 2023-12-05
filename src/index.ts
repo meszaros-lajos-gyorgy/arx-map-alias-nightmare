@@ -195,7 +195,7 @@ chest.withScript()
 chest.script?.on('init', () => {
   return `
     set §unlock 1
-    inventory addfromscene ${krahoz.ref}
+    // inventory addfromscene ${krahoz.ref}
     inventory addfromscene ${zohark.ref}
   `
 })
