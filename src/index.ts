@@ -24,7 +24,6 @@ import { islandWithTree, islands } from './data/islands.js'
 import { Tree } from './entities/tree.js'
 import { createGameStateManager } from './gameStateManager.js'
 import { createBed } from './prefabs/createBed.js'
-import { createTree } from './prefabs/createTree.js'
 
 const settings = new Settings()
 
@@ -89,8 +88,7 @@ const terrainBBox = boundingBoxes.reduce((acc, curr) => {
   return acc
 }, new Box3())
 
-terrainItems.push(createPillars(500, terrainBBox, boundingBoxes))
-terrainItems.push(createFallInducer(terrainBBox, islands[0].position ?? new Vector3(0, 0, 0)))
+terrainItems.push(createFallInducer(terrainBBox, islands[0].position as Vector3))
 
 terrainItems
   .flatMap(({ meshes }) => meshes)
@@ -116,8 +114,9 @@ map.zones.push(createSpawnZone())
 
 const meshes: Mesh[] = []
 
-const tree = await createTree({ position: islandWithTree.position?.clone() })
-meshes.push(...tree)
+const pillars = createPillars(500, terrainBBox, boundingBoxes)
+
+meshes.push(...pillars)
 
 meshes.forEach((mesh) => {
   applyTransformations(mesh)
@@ -146,11 +145,21 @@ islands.forEach(({ size, position }) => {
     orientation: new Rotation(MathUtils.degToRad(180), MathUtils.degToRad(randomBetween(0, 360)), 0),
     scale,
   })
+  upsideDownTree.script?.on('init', 'setgroup upside_down_tree')
   map.entities.push(upsideDownTree)
 })
 
 const gameStateManager = createGameStateManager(settings)
 map.entities.push(gameStateManager)
+
+// ------------------------
+
+const tree = new Tree({
+  position: islandWithTree.position?.clone().add(new Vector3(20 + 40, -155 * 1, 20 - 70)),
+  scale: 1,
+})
+tree.script?.on('init', 'setgroup normal_tree')
+map.entities.push(tree)
 
 const krahoz = new Entity({ src: 'items/quest_item/krahoz' })
 krahoz.withScript()
@@ -190,6 +199,8 @@ chest.script?.on('init', () => {
   `
 })
 map.entities.push(chest)
+
+// ------------------------
 
 const bed = await createBed(
   {

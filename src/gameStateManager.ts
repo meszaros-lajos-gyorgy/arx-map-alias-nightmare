@@ -35,7 +35,7 @@ export const createGameStateManager = (settings: Settings) => {
   }
 
   manager.script?.on('init', () => {
-    return `sendevent -g tree hide nop`
+    return `sendevent -g upside_down_tree hide nop`
   })
 
   const gotZohark = new Variable('bool', 'got_zohark', false)
@@ -66,7 +66,9 @@ export const createGameStateManager = (settings: Settings) => {
           ${loudBangSound.play()}
           quake 200 4000 1
           worldfade out 50 ${Color.white.toScriptColor()}
-          ${delay(50)} sendevent -g tree show nop worldfade in 500
+          ${delay(50)} sendevent -g upside_down_tree show nop
+          ${delay(0)} sendevent -g normal_tree hide nop
+          ${delay(0)} worldfade in 500
           return
         }
 
