@@ -6,6 +6,7 @@ export const islands: createTerrainProps[] = [
   {
     size: 800,
     position: new Vector3(100, 0, 100),
+    angleY: -17,
     type: 'island',
     loot: [],
   },
