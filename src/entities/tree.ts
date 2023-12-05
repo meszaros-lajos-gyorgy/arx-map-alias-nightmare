@@ -1,6 +1,6 @@
 import { Expand } from 'arx-convert/utils'
 import { Entity, EntityConstructorPropsWithoutSrc, EntityModel } from 'arx-level-generator'
-import { Collision, Interactivity, Material, Scale, Shadow } from 'arx-level-generator/scripting/properties'
+import { Interactivity, Material, Scale, Shadow } from 'arx-level-generator/scripting/properties'
 import { createTree } from '@/prefabs/createTree.js'
 
 type TreeConstructorProps = Expand<
@@ -39,7 +39,7 @@ export class Tree extends Entity {
 
     this.script
       ?.whenRoot()
-      .on('init', () => [Shadow.off, Material.wood, Interactivity.off, Collision.off])
+      .on('init', () => [Shadow.off, Material.wood, Interactivity.off])
       .on('show', () => `objecthide self no`)
       .on('hide', () => `objecthide self yes`)
   }

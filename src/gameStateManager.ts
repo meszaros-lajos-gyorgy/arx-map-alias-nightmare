@@ -67,7 +67,6 @@ export const createGameStateManager = (settings: Settings) => {
           quake 200 4000 1
           worldfade out 50 ${Color.white.toScriptColor()}
           ${delay(50)} sendevent -g upside_down_tree show nop
-          ${delay(0)} sendevent -g normal_tree hide nop
           ${delay(0)} worldfade in 500
           return
         }

@@ -9,7 +9,8 @@ import {
   Vector3,
 } from 'arx-level-generator'
 import { Rune } from 'arx-level-generator/prefabs/entity'
-import { Shadow, Speed } from 'arx-level-generator/scripting/properties'
+import { ScriptSubroutine } from 'arx-level-generator/scripting'
+import { Collision, Shadow, Speed } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomBetween, randomSort } from 'arx-level-generator/utils/random'
 import { Box3, MathUtils, Mesh, Vector2 } from 'three'
@@ -138,8 +139,7 @@ const getSize = (size: number | Vector2) => {
 const rootTree = new Tree()
 rootTree.script?.makeIntoRoot()
 map.entities.push(rootTree)
-
-islands.forEach(({ size, position }) => {
+;[...islands, islandWithTree].forEach(({ size, position }) => {
   const scale = getSize(size) / getSize(islandWithTree.size)
   const upsideDownTree = new Tree({
     position: position?.clone().add(new Vector3(0, 255 * scale, 0)),
@@ -147,6 +147,7 @@ islands.forEach(({ size, position }) => {
     scale,
   })
   upsideDownTree.script?.on('init', 'setgroup upside_down_tree')
+  upsideDownTree.script?.properties.push(Collision.off)
   map.entities.push(upsideDownTree)
 })
 
@@ -159,7 +160,6 @@ const tree = new Tree({
   position: islandWithTree.position?.clone().add(new Vector3(20 + 40, -155 * 1, 20 - 70)),
   scale: 1,
 })
-tree.script?.on('init', 'setgroup normal_tree')
 map.entities.push(tree)
 
 const chest = new Entity({
@@ -182,15 +182,26 @@ krahoz.script?.on('inventoryuse', () => {
 
 const zohark = new Entity({ src: 'items/quest_item/zohark' })
 zohark.withScript()
-zohark.script?.on('inventoryuse', () => {
-  return `
-    play activate_scroll
-    sendevent got_zohark ${gameStateManager.ref} nop
-    sendevent destroy ${chest.ref} nop
-    destroy self
-    refuse
-  `
-})
+
+const zoharkMoved = new ScriptSubroutine(
+  'zohark_moved',
+  () => {
+    return `
+      play activate_scroll
+      sendevent got_zohark ${gameStateManager.ref} nop
+      sendevent destroy ${chest.ref} nop
+      sendevent hide ${tree.ref} nop
+      destroy self
+    `
+  },
+  'gosub',
+)
+zohark.script?.subroutines.push(zoharkMoved)
+
+zohark.script?.on('inventoryuse', zoharkMoved.invoke())
+zohark.script?.on('clicked', zoharkMoved.invoke())
+zohark.script?.on('inventoryin', zoharkMoved.invoke())
+// TODO: handle if the item is being taken out of the chest and being dropped on the floor
 
 chest.script?.on('init', () => {
   return `
@@ -198,9 +209,7 @@ chest.script?.on('init', () => {
     inventory addfromscene ${zohark.ref}
   `
 })
-chest.script?.on('destroy', () => {
-  return `destroy self`
-})
+chest.script?.on('destroy', () => `destroy self`)
 
 map.entities.push(chest, krahoz, zohark)
 
