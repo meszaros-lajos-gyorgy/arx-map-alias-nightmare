@@ -46,7 +46,7 @@ export const createTerrain = ({
 
     // ---------------
 
-    const islandBottom = createPlaneMesh({ size, texture })
+    const islandBottom = createPlaneMesh({ size, texture: new Texture({ filename: 'L7_CAVE_[STONE]_GROUND01' }) })
     if (hasBumps) {
       makeBumpy([0, -100], 10, true, islandBottom.geometry)
       makeBumpy([0, -60], 40, true, islandBottom.geometry)
