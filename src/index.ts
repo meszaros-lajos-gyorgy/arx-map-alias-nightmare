@@ -162,6 +162,13 @@ const tree = new Tree({
 tree.script?.on('init', 'setgroup normal_tree')
 map.entities.push(tree)
 
+const chest = new Entity({
+  src: 'fix_inter/chest_metal',
+  position: islandWithTree.position?.clone().add(new Vector3(70, 0, 70)),
+  orientation: new Rotation(0, MathUtils.degToRad(40), 0),
+})
+chest.withScript()
+
 const krahoz = new Entity({ src: 'items/quest_item/krahoz' })
 krahoz.withScript()
 krahoz.script?.on('inventoryuse', () => {
@@ -172,7 +179,6 @@ krahoz.script?.on('inventoryuse', () => {
     refuse
   `
 })
-map.entities.push(krahoz)
 
 const zohark = new Entity({ src: 'items/quest_item/zohark' })
 zohark.withScript()
@@ -180,26 +186,23 @@ zohark.script?.on('inventoryuse', () => {
   return `
     play activate_scroll
     sendevent got_zohark ${gameStateManager.ref} nop
+    sendevent destroy ${chest.ref} nop
     destroy self
     refuse
   `
 })
-map.entities.push(zohark)
 
-const chest = new Entity({
-  src: 'fix_inter/chest_metal',
-  position: islandWithTree.position?.clone().add(new Vector3(70, 0, 70)),
-  orientation: new Rotation(0, MathUtils.degToRad(40), 0),
-})
-chest.withScript()
 chest.script?.on('init', () => {
   return `
     set §unlock 1
-    // inventory addfromscene ${krahoz.ref}
     inventory addfromscene ${zohark.ref}
   `
 })
-map.entities.push(chest)
+chest.script?.on('destroy', () => {
+  return `destroy self`
+})
+
+map.entities.push(chest, krahoz, zohark)
 
 // ------------------------
 
