@@ -5,7 +5,6 @@ import { none } from 'arx-level-generator/utils/faux-ramda'
 import { randomBetween } from 'arx-level-generator/utils/random'
 import { quadtree as d3Quadtree } from 'd3-quadtree'
 import { Box2, Box3, CylinderGeometry, Mesh, MeshBasicMaterial, Vector2 } from 'three'
-import { TerrainItem } from '@/types.js'
 
 const randomPointInArea = (area: Box2) => {
   const x = randomBetween(area.min.x, area.max.x)
@@ -88,7 +87,7 @@ const getPillarBBox = (pos: Vector3, pillarSize: Vector2) => {
  * @param area the area containing all islands and bridges
  * @param excludedZones a list of individual areas around each island and bridge
  */
-export const createPillars = (numberOfPillars: number, area: Box3, excludedZones: Box3[]): TerrainItem => {
+export const createPillars = (numberOfPillars: number, area: Box3, excludedZones: Box3[]) => {
   const areaSize = area.max.clone().sub(area.min)
   const areaCenter = area.min.clone().add(areaSize.clone().divideScalar(2))
   const margin = 1500
@@ -112,10 +111,5 @@ export const createPillars = (numberOfPillars: number, area: Box3, excludedZones
     return pillars
   }, [] as Mesh[])
 
-  return {
-    meshes: pillars,
-    entities: [],
-    lights: [],
-    zones: [],
-  }
+  return pillars
 }
