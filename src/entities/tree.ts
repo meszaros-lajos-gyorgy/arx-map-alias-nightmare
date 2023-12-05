@@ -39,7 +39,7 @@ export class Tree extends Entity {
 
     this.script
       ?.whenRoot()
-      .on('init', () => [Shadow.off, Material.wood, Interactivity.off, Collision.off, 'setgroup tree'])
+      .on('init', () => [Shadow.off, Material.wood, Interactivity.off, Collision.off])
       .on('show', () => `objecthide self no`)
       .on('hide', () => `objecthide self yes`)
   }
