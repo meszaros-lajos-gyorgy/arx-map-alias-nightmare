@@ -1,4 +1,4 @@
-import { Entity, Light, Rotation, TextureOrMaterial, Vector3, Zone } from 'arx-level-generator'
+import { Entity, Light, Polygons, Rotation, TextureOrMaterial, Vector3, Zone } from 'arx-level-generator'
 import { Mesh, Vector2 } from 'three'
 
 export type createTerrainProps = {
@@ -51,4 +51,5 @@ export type TerrainItem = {
   lights: Light[]
   entities: Entity[]
   zones: Zone[]
+  polygons?: Polygons[]
 }

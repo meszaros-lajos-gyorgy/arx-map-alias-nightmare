@@ -9,7 +9,7 @@ import {
   Vector3,
 } from 'arx-level-generator'
 import { Rune } from 'arx-level-generator/prefabs/entity'
-import { Interactivity, Scale, Shadow, Speed } from 'arx-level-generator/scripting/properties'
+import { Shadow, Speed } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomBetween, randomSort } from 'arx-level-generator/utils/random'
 import { Box3, MathUtils, Mesh, Vector2 } from 'three'
@@ -23,7 +23,7 @@ import { TerrainItem } from '@/types.js'
 import { islandWithTree, islands } from './data/islands.js'
 import { Tree } from './entities/tree.js'
 import { createGameStateManager } from './gameStateManager.js'
-import { createBed } from './prefabs/createBed.js'
+import { populateSpawn } from './islands/spawn.js'
 
 const settings = new Settings()
 
@@ -114,9 +114,10 @@ map.zones.push(createSpawnZone())
 
 const meshes: Mesh[] = []
 
-const pillars = createPillars(500, terrainBBox, boundingBoxes)
-
-meshes.push(...pillars)
+if (settings.mode === 'production') {
+  const pillars = createPillars(500, terrainBBox, boundingBoxes)
+  meshes.push(...pillars)
+}
 
 meshes.forEach((mesh) => {
   applyTransformations(mesh)
@@ -202,50 +203,24 @@ map.entities.push(chest)
 
 // ------------------------
 
-const bed = await createBed(
-  {
-    position: map.config.offset
-      .clone()
-      .add(islands[0].position?.clone() ?? new Vector3(0, 0, 0))
-      .add(new Vector3(100, 10, -100)),
-  },
-  settings,
-)
-map.polygons.push(...bed)
+const spawn = await populateSpawn(islands[0].position, gameStateManager, settings)
 
-const pillow = new Entity({
-  src: 'items/movable/cuscion',
-  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(80, -50, -170)),
-})
-pillow.withScript()
-pillow.script?.properties.push(Shadow.off)
+const populatedIslands = [spawn]
 
-const dresserLeft = new Entity({
-  src: 'fix_inter/chest_dresser_chest',
-  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(200, 10, -200)),
-  orientation: new Rotation(0, MathUtils.degToRad(90), MathUtils.degToRad(10)),
-  id: 100,
+populatedIslands.forEach(({ polygons = [] }) => {
+  polygons.forEach((p) => {
+    p.move(map.config.offset)
+    map.polygons.push(...p)
+  })
 })
-dresserLeft.withScript()
-dresserLeft.script?.properties.push(Shadow.off)
-const dresserRight = new Entity({
-  src: 'fix_inter/chest_dresser_chest',
-  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(-50, 5, -250)),
-  orientation: new Rotation(0, MathUtils.degToRad(95), MathUtils.degToRad(-7)),
-  id: 101,
-})
-dresserRight.withScript()
-dresserRight.script?.properties.push(Shadow.off)
 
-const candleOnLeftDrawer = new Entity({
-  src: 'items/provisions/candle/candel.asl',
-  position: (islands[0].position?.clone() ?? new Vector3(0, 0, 0)).add(new Vector3(220, -75, -180)),
-  orientation: new Rotation(MathUtils.degToRad(-90), 0, 0),
-})
-candleOnLeftDrawer.withScript()
-candleOnLeftDrawer.script?.properties.push(Interactivity.off, Shadow.off)
-
-map.entities.push(pillow, dresserLeft, dresserRight, candleOnLeftDrawer)
+populatedIslands
+  .flatMap(({ entities }) => entities)
+  .forEach((entity) => {
+    entity.withScript()
+    entity.script?.properties.push(Shadow.off)
+    map.entities.push(entity)
+  })
 
 // ----------------------
 
