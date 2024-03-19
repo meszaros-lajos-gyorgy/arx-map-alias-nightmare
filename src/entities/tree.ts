@@ -18,7 +18,7 @@ export class Tree extends Entity {
   constructor({ scale = 1, ...props }: TreeConstructorProps = {}) {
     super({
       src: 'fix_inter/tree',
-      model: EntityModel.fromThreeJsObj(treeMesh[0], {
+      model: EntityModel.fromThreeJsObj(treeMesh.meshes[0], {
         filename: 'tree.ftl',
         originIdx: 1,
       }),
