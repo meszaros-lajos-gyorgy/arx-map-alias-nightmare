@@ -237,6 +237,6 @@ populatedIslands
 // ----------------------
 
 map.finalize()
-await map.saveToDisk(settings)
+await map.saveToDisk(settings, true, true)
 
 console.log('done')
