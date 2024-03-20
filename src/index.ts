@@ -22,7 +22,7 @@ import { createSpawnZone } from '@/prefabs/createSpawnZone.js'
 import { createTerrain } from '@/prefabs/createTerrain.js'
 import { TerrainItem } from '@/types.js'
 import { islandWithTree, islands } from './data/islands.js'
-import { Tree } from './entities/tree.js'
+import { Tree } from './entities/Tree.js'
 import { createGameStateManager } from './gameStateManager.js'
 import { populateSpawn } from './islands/spawn.js'
 
