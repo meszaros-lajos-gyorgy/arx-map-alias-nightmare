@@ -22,6 +22,7 @@ import { createSpawnZone } from '@/prefabs/createSpawnZone.js'
 import { createTerrain } from '@/prefabs/createTerrain.js'
 import { TerrainItem } from '@/types.js'
 import { islandWithTree, islands } from './data/islands.js'
+import { Test } from './entities/Test.js'
 import { Tree } from './entities/Tree.js'
 import { createGameStateManager } from './gameStateManager.js'
 import { populateSpawn } from './islands/spawn.js'
@@ -136,26 +137,27 @@ const getSize = (size: number | Vector2) => {
   return typeof size === 'number' ? size : Math.min(size.x, size.y)
 }
 
-const rootTree = new Tree()
-rootTree.script?.makeIntoRoot()
-map.entities.push(rootTree)
-;[...islands, islandWithTree].forEach(({ size, position }) => {
-  const scale = getSize(size) / getSize(islandWithTree.size)
-  const upsideDownTree = new Tree({
-    position: position?.clone().add(new Vector3(0, 255 * scale, 0)),
-    orientation: new Rotation(MathUtils.degToRad(180), MathUtils.degToRad(randomBetween(0, 360)), 0),
-    scale,
-  })
-  upsideDownTree.script?.on('init', 'setgroup upside_down_tree')
-  upsideDownTree.script?.properties.push(Collision.off)
-  map.entities.push(upsideDownTree)
-})
+// const rootTree = new Tree()
+// rootTree.script?.makeIntoRoot()
+// map.entities.push(rootTree)
+// ;[...islands, islandWithTree].forEach(({ size, position }) => {
+//   const scale = getSize(size) / getSize(islandWithTree.size)
+//   const upsideDownTree = new Tree({
+//     position: position?.clone().add(new Vector3(0, 255 * scale, 0)),
+//     orientation: new Rotation(MathUtils.degToRad(180), MathUtils.degToRad(randomBetween(0, 360)), 0),
+//     scale,
+//   })
+//   upsideDownTree.script?.on('init', 'setgroup upside_down_tree')
+//   upsideDownTree.script?.properties.push(Collision.off)
+//   map.entities.push(upsideDownTree)
+// })
 
 const gameStateManager = createGameStateManager(settings)
 map.entities.push(gameStateManager)
 
 // ------------------------
 
+/*
 const tree = new Tree({
   position: islandWithTree.position?.clone().add(new Vector3(20 + 40, -155 * 1, 20 - 70)),
   scale: 1,
@@ -212,6 +214,7 @@ chest.script?.on('init', () => {
 chest.script?.on('destroy', () => `destroy self`)
 
 map.entities.push(chest, krahoz, zohark)
+*/
 
 // ------------------------
 
@@ -233,6 +236,13 @@ populatedIslands
     entity.script?.properties.push(Shadow.off)
     map.entities.push(entity)
   })
+
+// ----------------------
+
+const test = new Test({
+  position: new Vector3(100, -110, 0),
+})
+map.entities.push(test)
 
 // ----------------------
 
