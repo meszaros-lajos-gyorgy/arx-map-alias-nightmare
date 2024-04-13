@@ -1,4 +1,5 @@
 import {
+  $,
   ArxMap,
   DONT_QUADIFY,
   Entity,
@@ -222,10 +223,10 @@ const spawn = await populateSpawn(islands[0].position, gameStateManager, setting
 
 const populatedIslands = [spawn]
 
-populatedIslands.forEach(({ polygons = [] }) => {
-  polygons.forEach((p) => {
-    p.move(map.config.offset)
-    map.polygons.push(...p)
+populatedIslands.forEach(({ polygons: arrayOfPolygons = [] }) => {
+  arrayOfPolygons.forEach((polygons) => {
+    $(polygons).move(map.config.offset)
+    map.polygons.push(...polygons)
   })
 })
 

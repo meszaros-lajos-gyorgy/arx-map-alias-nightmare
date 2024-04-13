@@ -1,4 +1,4 @@
-import { ArxMap, Settings, Texture, Vector3 } from 'arx-level-generator'
+import { $, ArxMap, Settings, Texture, Vector3 } from 'arx-level-generator'
 import { Box3 } from 'three'
 
 export const createBed = async ({ position, scale = 1 }: { position: Vector3; scale?: number }, settings: Settings) => {
@@ -13,7 +13,7 @@ export const createBed = async ({ position, scale = 1 }: { position: Vector3; sc
   const adjustment = new Vector3(0, 40, 0)
   const inverseCenter = center.clone().multiplyScalar(-1)
 
-  return rebelCampMap.polygons
+  return $(rebelCampMap.polygons)
     .selectWithinBox(box)
     .selectByTextures([Texture.l3DissidWoodFabric03, Texture.l3DissidWoodFabric04])
     .copy()
@@ -22,4 +22,5 @@ export const createBed = async ({ position, scale = 1 }: { position: Vector3; sc
     .move(adjustment)
     .scale(scale)
     .move(position)
+    .get()
 }
