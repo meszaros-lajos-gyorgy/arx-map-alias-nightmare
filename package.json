@@ -11,8 +11,7 @@
     "dev": "npm run generate && npm run rungame",
     "dev:noclip": "npm run generate && npm run rungame:noclip",
     "prod": "export mode=\"production\" && npm run generate && npm run rungame",
-    "release:normal": "export variant=\"normal\" && export outputDir=\"./output\" && export mode=\"production\" && rm -rf cache && npm run generate",
-    "release:premium": "export variant=\"premium\" && export outputDir=\"./output\" && export mode=\"production\" && rm -rf cache && npm run generate"
+    "release": "export outputDir=\"./output\" && export mode=\"production\" && rm -rf cache && npm run generate"
   },
   "repository": {
     "type": "git",
@@ -29,7 +28,7 @@
   "homepage": "https://github.com/meszaros-lajos-gyorgy/arx-map-alias-nightmare#readme",
   "dependencies": {
     "arx-convert": "^8.1.0",
-    "arx-level-generator": "^14.0.0-alpha.2",
+    "arx-level-generator": "^14.0.0-alpha.4",
     "d3-quadtree": "^3.0.1",
     "three": "^0.158.0"
   },
