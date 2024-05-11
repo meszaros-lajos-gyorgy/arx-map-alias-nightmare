@@ -59,6 +59,9 @@ export const createFallInducer = (terrainBBox: Box3, fallbackToThisPoint: Vector
 
   fallSaver.script?.on('controlledzone_enter', () => {
     return `
+      if (^$param1 != "player") {
+        accept
+      }
       if (${isPlayerBeingSaved.name} == 1) {
         accept
       }
