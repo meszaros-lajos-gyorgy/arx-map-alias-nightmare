@@ -9,8 +9,9 @@ import {
   Settings,
   Vector3,
 } from 'arx-level-generator'
-import { Rune } from 'arx-level-generator/prefabs/entity'
+import { Marker, Rune } from 'arx-level-generator/prefabs/entity'
 import { ScriptSubroutine } from 'arx-level-generator/scripting'
+import { useDelay } from 'arx-level-generator/scripting/hooks'
 import { Collision, Shadow, Speed } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomBetween, randomSort } from 'arx-level-generator/utils/random'
@@ -240,10 +241,58 @@ populatedIslands
 
 // ----------------------
 
+map.player.script?.on('teleport_to_entity', () => {
+  return `
+    teleport ~^$param1~
+  `
+})
+
+const playerMover = new Marker()
+playerMover.withScript()
+playerMover.script?.on('move_to_player', () => {
+  return `
+    teleport player
+  `
+})
+playerMover.script?.on('move', () => {
+  return `
+    move ^#param1 ^#param2 ^#param3
+  `
+})
+
 const testPlatform = new Test({
   position: new Vector3(800, 100, -0),
 })
-map.entities.push(testPlatform)
+
+const dirPerSec = new Vector3(0, 0, 50)
+
+const moveLoop = new ScriptSubroutine(
+  'platform_move_loop',
+  () => {
+    const dir = dirPerSec.clone().normalize()
+    return `
+      move ${dir.x} ${dir.y} ${dir.z}
+      if ("player" isin ^$objontop) {
+        sendevent move_to_player ${playerMover.ref} nop
+        sendevent move ${playerMover.ref} "${dir.x} ${dir.y} ${dir.z}"
+        sendevent teleport_to_entity player "${playerMover.ref}"
+      }
+    `
+  },
+  'goto',
+)
+
+testPlatform.script?.subroutines.push(moveLoop)
+
+testPlatform.script?.on('init', () => {
+  const { loop } = useDelay()
+
+  return `
+    ${loop(1000 / dirPerSec.length(), Infinity)} ${moveLoop.invoke()}
+  `
+})
+
+map.entities.push(testPlatform, playerMover)
 
 // ----------------------
 

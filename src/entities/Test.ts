@@ -1,5 +1,4 @@
 import { Entity, EntityConstructorPropsWithoutSrc, EntityModel, Texture } from 'arx-level-generator'
-import { useDelay } from 'arx-level-generator/scripting/hooks'
 import { Platform } from 'arx-level-generator/scripting/properties'
 import { toArxCoordinateSystem } from 'arx-level-generator/tools/mesh'
 import { MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
@@ -27,17 +26,5 @@ export class Test extends Entity {
     this.withScript()
 
     this.script?.properties.push(Platform.on)
-
-    this.script?.on('init', () => {
-      const { loop } = useDelay()
-
-      const moveLoop = loop(500, Infinity)
-
-      return `
-        setelevator on // this only works for the Y axis and if movement is done via an animation
-        // TODO: is there a way to move the player with the platform?
-        ${moveLoop} move 0 0 1
-      `
-    })
   }
 }
