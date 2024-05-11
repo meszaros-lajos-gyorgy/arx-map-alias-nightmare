@@ -35,7 +35,7 @@ map.config.offset = new Vector3(6000, 0, 6000)
 map.player.position.adjustToPlayerHeight()
 map.player.withScript()
 if (settings.mode === 'development') {
-  map.player.script?.properties.push(new Speed(3))
+  // map.player.script?.properties.push(new Speed(3))
 }
 map.hud.hide(HudElements.Minimap)
 map.hud.hide(HudElements.Healthbar)
@@ -240,10 +240,10 @@ populatedIslands
 
 // ----------------------
 
-const test = new Test({
-  position: new Vector3(100, -110, 0),
+const testPlatform = new Test({
+  position: new Vector3(800, 100, -0),
 })
-map.entities.push(test)
+map.entities.push(testPlatform)
 
 // ----------------------
 
