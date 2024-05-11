@@ -249,9 +249,9 @@ map.player.script?.on('teleport_to_entity', () => {
 
 const playerMover = new Marker()
 playerMover.withScript()
-playerMover.script?.on('move_to_player', () => {
+playerMover.script?.on('teleport_to_entity', () => {
   return `
-    teleport player
+    teleport ~^$param1~
   `
 })
 playerMover.script?.on('move', () => {
@@ -272,8 +272,13 @@ const moveLoop = new ScriptSubroutine(
     const dir = dirPerSec.clone().normalize()
     return `
       move ${dir.x} ${dir.y} ${dir.z}
+      // TODO: ^$objontop returns all the entities that are above the platform,
+      // like "player cuscion_0001"
+      // but there are no ways to extract individual entities apart from
+      // checking idividual entities with the isin operator
+      // so currently only the player gets moved
       if ("player" isin ^$objontop) {
-        sendevent move_to_player ${playerMover.ref} nop
+        sendevent teleport_to_entity ${playerMover.ref} player
         sendevent move ${playerMover.ref} "${dir.x} ${dir.y} ${dir.z}"
         sendevent teleport_to_entity player "${playerMover.ref}"
       }
