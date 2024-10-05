@@ -1,6 +1,6 @@
 {
   "name": "arx-map-alias-nightmare",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "An Arx Fatalis map where you need to escape Alia's horroristic nightmare",
   "main": "src/index.ts",
   "type": "module",
