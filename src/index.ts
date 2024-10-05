@@ -9,9 +9,12 @@ import {
   Settings,
   Vector3,
 } from 'arx-level-generator'
-import { Marker, Rune } from 'arx-level-generator/prefabs/entity'
+import {
+  // Marker,
+  Rune,
+} from 'arx-level-generator/prefabs/entity'
 import { ScriptSubroutine } from 'arx-level-generator/scripting'
-import { useDelay } from 'arx-level-generator/scripting/hooks'
+// import { useDelay } from 'arx-level-generator/scripting/hooks'
 import { Collision, Shadow, Speed } from 'arx-level-generator/scripting/properties'
 import { applyTransformations } from 'arx-level-generator/utils'
 import { randomBetween, randomSort } from 'arx-level-generator/utils/random'
@@ -24,7 +27,7 @@ import { createSpawnZone } from '@/prefabs/createSpawnZone.js'
 import { createTerrain } from '@/prefabs/createTerrain.js'
 import { TerrainItem } from '@/types.js'
 import { islandWithTree, islands } from './data/islands.js'
-import { Test } from './entities/Test.js'
+// import { Test } from './entities/Test.js'
 import { Tree } from './entities/Tree.js'
 import { createGameStateManager } from './gameStateManager.js'
 import { populateSpawn } from './islands/spawn.js'
@@ -36,7 +39,7 @@ map.config.offset = new Vector3(6000, 0, 6000)
 map.player.position.adjustToPlayerHeight()
 map.player.withScript()
 if (settings.mode === 'development') {
-  // map.player.script?.properties.push(new Speed(3))
+  map.player.script?.properties.push(new Speed(3))
 }
 map.hud.hide(HudElements.Minimap)
 map.hud.hide(HudElements.Healthbar)
@@ -139,50 +142,53 @@ const getSize = (size: number | Vector2) => {
   return typeof size === 'number' ? size : Math.min(size.x, size.y)
 }
 
-// const rootTree = new Tree()
-// rootTree.script?.makeIntoRoot()
-// map.entities.push(rootTree)
-// ;[...islands, islandWithTree].forEach(({ size, position }) => {
-//   const scale = getSize(size) / getSize(islandWithTree.size)
-//   const upsideDownTree = new Tree({
-//     position: position?.clone().add(new Vector3(0, 255 * scale, 0)),
-//     orientation: new Rotation(MathUtils.degToRad(180), MathUtils.degToRad(randomBetween(0, 360)), 0),
-//     scale,
-//   })
-//   upsideDownTree.script?.on('init', 'setgroup upside_down_tree')
-//   upsideDownTree.script?.properties.push(Collision.off)
-//   map.entities.push(upsideDownTree)
-// })
+const rootTree = new Tree()
+rootTree.script?.makeIntoRoot()
+map.entities.push(rootTree)
+;[...islands, islandWithTree].forEach(({ size, position }) => {
+  const scale = getSize(size) / getSize(islandWithTree.size)
+  const upsideDownTree = new Tree({
+    position: position?.clone().add(new Vector3(0, 255 * scale, 0)),
+    orientation: new Rotation(MathUtils.degToRad(180), MathUtils.degToRad(randomBetween(0, 360)), 0),
+    scale,
+  })
+  upsideDownTree.script?.on('init', 'setgroup upside_down_tree')
+  upsideDownTree.script?.properties.push(Collision.off)
+  map.entities.push(upsideDownTree)
+})
 
 const gameStateManager = createGameStateManager(settings)
 map.entities.push(gameStateManager)
 
 // ------------------------
 
-/*
 const tree = new Tree({
-  position: islandWithTree.position?.clone().add(new Vector3(20 + 40, -155 * 1, 20 - 70)),
+  position: islandWithTree.position?.clone().add(new Vector3(20 - 40, -155 * 1, 20)),
   scale: 1,
 })
 map.entities.push(tree)
 
 const chest = new Entity({
   src: 'fix_inter/chest_metal',
-  position: islandWithTree.position?.clone().add(new Vector3(70, 0, 70)),
+  position: islandWithTree.position?.clone().add(new Vector3(85, 0, 110)),
   orientation: new Rotation(0, MathUtils.degToRad(40), 0),
 })
 chest.withScript()
 
 const krahoz = new Entity({ src: 'items/quest_item/krahoz' })
 krahoz.withScript()
-krahoz.script?.on('inventoryuse', () => {
-  return `
-    play activate_scroll
-    sendevent got_krahoz ${gameStateManager.ref} nop
-    destroy self
-    refuse
-  `
-})
+krahoz.script
+  ?.on('init', () => {
+    return `objecthide self yes`
+  })
+  .on('inventoryuse', () => {
+    return `
+      play activate_scroll
+      sendevent got_krahoz ${gameStateManager.ref} nop
+      destroy self
+      refuse
+    `
+  })
 
 const zohark = new Entity({ src: 'items/quest_item/zohark' })
 zohark.withScript()
@@ -191,6 +197,7 @@ const zoharkMoved = new ScriptSubroutine(
   'zohark_moved',
   () => {
     return `
+      objecthide ${krahoz.ref} no
       play activate_scroll
       sendevent got_zohark ${gameStateManager.ref} nop
       sendevent destroy ${chest.ref} nop
@@ -216,7 +223,6 @@ chest.script?.on('init', () => {
 chest.script?.on('destroy', () => `destroy self`)
 
 map.entities.push(chest, krahoz, zohark)
-*/
 
 // ------------------------
 
@@ -241,6 +247,7 @@ populatedIslands
 
 // ----------------------
 
+/*
 map.player.script?.on('teleport_to_entity', () => {
   return `
     teleport ~^$param1~
@@ -298,6 +305,7 @@ testPlatform.script?.on('init', () => {
 })
 
 map.entities.push(testPlatform, playerMover)
+*/
 
 // ----------------------
 
